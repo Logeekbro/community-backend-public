@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.db.community.mapper.TagMapper">
+
+    <resultMap id="BaseResultMap" type="com.db.community.model.entity.Tag">
+            <id property="tagId" column="tag_id" jdbcType="VARCHAR"/>
+            <result property="tagName" column="tag_name" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <select id="selectTagNameSetByArticleId" resultType="java.lang.String">
+        SELECT t.tag_name FROM tb_tag t
+        INNER JOIN mtb_article_tag mid_at
+        ON t.tag_id=mid_at.tag_id
+        WHERE mid_at.article_id=#{articleId};
+    </select>
+    <select id="selectTagInfoByTagName" resultType="com.db.community.model.vo.impl.TagInfoVO">
+        SELECT COUNT(at.article_id) articleCount, t.tag_id, t.tag_name, t.create_time FROM tb_tag t
+        INNER JOIN mtb_article_tag at
+        ON t.tag_id=at.tag_id
+        WHERE t.tag_name like CONCAT("%", #{tagName}, "%")
+        AND at.article_id IN (SELECT a.article_id FROM tb_article a WHERE a.article_id=at.article_id AND a.deleted=0)
+        GROUP BY t.tag_id
+        LIMIT #{offset}, #{size}
+    </select>
+    <select id="selectTagCountByTagName" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM tb_tag WHERE tag_name like CONCAT("%", #{tagName}, "%")
+    </select>
+    <select id="selectArticleCountByTagName" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM tb_tag t INNER JOIN mtb_article_tag at
+        ON t.tag_id=at.tag_id AND t.tag_name=#{tagName}
+        INNER JOIN tb_article a ON a.article_id=at.article_id AND a.deleted=0
+    </select>
+    <select id="selectIdAndNameList" resultType="com.db.community.model.vo.impl.TagIdAndNameVO">
+        SELECT tag_id,tag_name FROM tb_tag
+        <where>
+            <if test="tagId != null">
+                AND tag_id=#{tagId}
+            </if>
+            <if test="tagName != null">
+                AND tag_name LIKE CONCAT('%', #{tagName}, '%')
+            </if>
+        </where>
+    </select>
+    <select id="selectHotTags" resultType="com.db.community.model.vo.impl.TagNameAndArticleCountVO">
+        SELECT t.tag_name, COUNT(*) articleCount FROM mtb_article_tag at INNER JOIN tb_article a ON a.article_id=at.article_id
+        INNER JOIN tb_tag t ON at.tag_id=t.tag_id
+        WHERE a.deleted=0 GROUP BY at.tag_id ORDER BY articleCount DESC LIMIT #{n}
+    </select>
+</mapper>

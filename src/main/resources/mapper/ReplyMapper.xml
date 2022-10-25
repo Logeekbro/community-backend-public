@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.db.community.mapper.ReplyMapper">
+
+    <resultMap id="BaseResultMap" type="com.db.community.model.entity.Reply">
+            <id property="replyId" column="reply_id" jdbcType="VARCHAR"/>
+            <result property="commentId" column="comment_id" jdbcType="VARCHAR"/>
+            <result property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="target" column="target" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="modifyTime" column="modify_time" jdbcType="TIMESTAMP"/>
+            <result property="deleted" column="deleted" jdbcType="BIT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        reply_id,comment_id,user_id,
+        target,create_time,modify_time,
+        deleted
+    </sql>
+</mapper>

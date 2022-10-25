@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.db.community.mapper.SectionMapper">
+
+
+    <select id="selectSectionInfoByArticleId" resultType="com.db.community.model.vo.impl.SectionInfoVO">
+        SELECT s.section_id,s.section_name FROM tb_section s INNER JOIN tb_article a
+        ON s.section_id= a.section_id AND a.deleted=0 AND s.deleted=0
+        WHERE a.article_id=#{articleId}
+    </select>
+</mapper>

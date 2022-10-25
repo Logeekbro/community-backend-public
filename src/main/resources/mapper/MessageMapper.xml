@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.db.community.mapper.MessageMapper">
+
+
+    <sql id="MessageInfoCol">
+        message_id,sender_id,target_id,content,type,create_time
+    </sql>
+
+    <select id="getAllReadMessageDetailByUserId" resultType="com.db.community.model.vo.impl.MessageInfoVO">
+        SELECT <include refid="MessageInfoCol"/> FROM tb_message WHERE sender_id=#{userId} OR
+        target_id=#{userId} AND is_read=1 AND deleted=0
+    </select>
+    <select id="getUnReadMessage" resultType="com.db.community.model.vo.impl.MessageInfoVO">
+        SELECT <include refid="MessageInfoCol"/> FROM tb_message WHERE sender_id=#{senderId} AND
+        target_id=#{targetId} AND is_read=0 AND deleted=0
+    </select>
+
+
+    <update id="updateReadStatus">
+        UPDATE tb_message SET is_read=1 WHERE is_read=0 AND sender_id=#{senderId} AND target_id=#{targetId}
+        AND deleted=0
+    </update>
+
+    <select id="getAllUnReadMessageDetailByUserId" resultType="com.db.community.model.vo.impl.MessageInfoVO">
+        SELECT <include refid="MessageInfoCol"/> FROM tb_message WHERE
+        target_id=#{userId} AND is_read=0 AND deleted=0
+    </select>
+</mapper>

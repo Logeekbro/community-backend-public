@@ -1,0 +1,41 @@
+server:
+  port: 10001
+spring:
+  datasource:
+    hikari:
+#      maximum-pool-size: 200
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/db_community?characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 8MB
+  redis:
+    host: localhost
+    port: 6379
+    password: redispw
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
+    virtual-host: /
+    port: 5672
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/school_community
+mybatis-plus:
+
+  type-aliases-package: com.db.community.model.entity
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    # 自动将数据库字段的下划线命名转为驼峰命名
+    map-underscore-to-camel-case: true
+    # 控制台打印日志
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.db.community.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.db.community.model.entity.User">
+            <id property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="account" column="account" jdbcType="VARCHAR"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="nickName" column="nick_name" jdbcType="VARCHAR"/>
+            <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+            <result property="email" column="email" jdbcType="VARCHAR"/>
+            <result property="qq" column="qq" jdbcType="VARCHAR"/>
+            <result property="introduce" column="introduce" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="BIT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="modifyTime" column="modify_time" jdbcType="TIMESTAMP"/>
+            <result property="deleted" column="deleted" jdbcType="BIT"/>
+    </resultMap>
+
+
+
+    <sql id="Base_Column_List">
+        user_id,account,password,
+        nick_name,avatar,email,
+        qq,introduce,status,
+        create_time,modify_time,deleted
+    </sql>
+
+    <sql id="PreviewInfo_Column_List">
+        user_id,nick_name,avatar,introduce
+    </sql>
+
+    <select id="getUserFollowListById" resultType="com.db.community.model.vo.impl.FollowUserInfoVO">
+        SELECT u.user_id,u.nick_name,u.avatar,u.introduce,f.create_time FROM tb_user u
+        INNER JOIN mtb_follow f ON u.user_id=f.parent_id AND f.follower_id=#{userId} AND u.deleted=0 AND f.visible=1
+    </select>
+</mapper>

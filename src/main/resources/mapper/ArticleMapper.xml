@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.db.community.mapper.ArticleMapper">
+
+    <resultMap id="BaseResultMap" type="com.db.community.model.entity.Article">
+            <id property="articleId" column="article_id" jdbcType="VARCHAR"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="authorId" column="author_id" jdbcType="INTEGER"/>
+            <result property="viewCount" column="view_count" jdbcType="BIGINT"/>
+            <result property="top" column="top" jdbcType="BIT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="modifyTime" column="modify_time" jdbcType="TIMESTAMP"/>
+            <result property="deleted" column="deleted" jdbcType="BIT"/>
+    </resultMap>
+
+    <update id="deleteOnEqual" >
+        UPDATE tb_article SET deleted=1
+        <where>
+            <if test="authorId != null">
+                AND author_id=#{authorId}
+            </if>
+            <if test="articleId != null">
+                AND article_id=#{articleId}
+            </if>
+        </where>
+    </update>
+
+    <update id="updateArticle">
+        UPDATE tb_article SET title=#{title}, content=#{content}, main_pic=#{mainPic}
+        WHERE article_id=#{articleId} AND author_id=#{authorId} AND deleted=0
+    </update>
+    <update id="updateArticleStatusAndDeleted">
+        UPDATE tb_article
+        <set>
+            <if test="status != null">status=#{status},</if>
+            <if test="deleted != null">deleted=#{deleted},</if>
+        </set>
+        WHERE article_id=#{articleId}
+    </update>
+
+    <select id="selectTotal" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM tb_article
+        <where>
+            <if test="authorId != null">
+                author_id=#{authorId}
+            </if>
+            <if test="title != null">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="sectionId != null">
+                AND section_id=#{sectionId}
+            </if>
+            AND deleted=0
+        </where>
+    </select>
+
+    <select id="getArticlePageByUserId" resultType="com.db.community.model.vo.impl.UserArticleListVO">
+        SELECT article_id,title,author_id,create_time,modify_time FROM tb_article WHERE author_id=#{userId}
+        AND deleted=0
+        ORDER BY modify_time DESC LIMIT #{offset},#{size}
+    </select>
+
+    <select id="selectLatestArticleInfoWithAuthorAndTagList"
+            resultType="com.db.community.model.vo.impl.ArticleAndAuthorInfoVO">
+        SELECT a.article_id,a.author_id,a.title,a.create_time,a.summary,a.main_pic,a.top,u.nick_name
+        FROM tb_article a INNER JOIN tb_user u
+        ON a.author_id=u.user_id AND a.deleted=0 AND u.deleted=0 AND !a.top
+        ORDER BY a.create_time DESC LIMIT #{offset},#{size}
+    </select>
+    <select id="selectPopularArticleInfoWithAuthorAndTagList"
+            resultType="com.db.community.model.vo.impl.ArticleAndAuthorInfoVO">
+        SELECT a.article_id,a.author_id,a.title,a.create_time,a.summary,a.main_pic,a.top,u.nick_name
+        FROM tb_article a INNER JOIN tb_user u
+        ON a.author_id=u.user_id AND a.deleted=0 AND u.deleted=0 AND !a.top
+        ORDER BY a.view_count DESC LIMIT #{offset},#{size}
+    </select>
+
+    <select id="selectArticleInfoById"
+            resultType="com.db.community.model.vo.impl.ArticleInfoVO">
+        SELECT article_id,title,author_id,section_id,content,main_pic,summary,create_time FROM tb_article WHERE
+        article_id=#{articleId} AND (deleted=0 OR status=2) LIMIT 1
+    </select>
+    <select id="selectArticleInfoByKeyword" resultType="com.db.community.model.vo.impl.ArticleAndAuthorInfoVO">
+        SELECT a.article_id,a.author_id,a.title,a.create_time,a.summary,a.main_pic,u.nick_name
+        FROM tb_article a INNER JOIN tb_user u
+        ON a.author_id=u.user_id AND a.deleted=0 AND u.deleted=0
+        WHERE a.title LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY a.create_time DESC LIMIT #{offset},#{size}
+    </select>
+    <select id="selectArticleInfoByTagName" resultType="com.db.community.model.vo.impl.ArticleAndAuthorInfoVO">
+        SELECT a.article_id,a.author_id,a.title,a.create_time,a.summary,a.main_pic,u.nick_name
+        FROM tb_article a INNER JOIN tb_user u
+        ON a.author_id=u.user_id AND a.deleted=0 AND u.deleted=0
+        INNER JOIN mtb_article_tag at ON a.article_id=at.article_id
+        INNER JOIN tb_tag t ON t.tag_id=at.tag_id AND t.tag_name=#{tagName}
+        ORDER BY a.create_time DESC LIMIT #{offset},#{size}
+    </select>
+    <select id="selectIndexTopArticle" resultType="com.db.community.model.vo.impl.ArticleAndAuthorInfoVO">
+        SELECT a.article_id,a.author_id,a.title,a.create_time,a.summary,a.main_pic,a.top,u.nick_name
+        FROM tb_article a INNER JOIN tb_user u
+        ON a.author_id=u.user_id AND a.deleted=0 AND u.deleted=0 AND a.top
+    </select>
+    <select id="selectArticleInfoBySectionId"
+            resultType="com.db.community.model.vo.impl.ArticleAndAuthorInfoVO">
+        SELECT a.article_id,a.author_id,a.title,a.create_time,a.summary,a.main_pic,u.nick_name
+        FROM tb_article a INNER JOIN tb_user u
+        ON a.author_id=u.user_id AND a.deleted=0 AND u.deleted=0
+        WHERE a.section_id=#{sectionId}
+        ORDER BY a.create_time DESC LIMIT #{offset},#{size}
+    </select>
+    <select id="selectArticleListByStatusAndDeleted" resultType="com.db.community.model.vo.impl.ArticleInfoVO">
+        SELECT article_id,author_id,title,summary,content,main_pic,section_id,create_time FROM tb_article
+        <where>
+            <if test="userId != null">
+                author_id=#{userId}
+            </if>
+            AND status=#{status} AND deleted=#{deleted}
+        </where>
+    </select>
+
+
+</mapper>

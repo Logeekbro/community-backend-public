@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.db.community.mapper.ViewMapper">
+
+    <resultMap id="BaseResultMap" type="com.db.community.model.entity.View">
+            <id property="viewId" column="view_id" jdbcType="VARCHAR"/>
+            <result property="readerId" column="reader_id" jdbcType="INTEGER"/>
+            <result property="articleId" column="article_id" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="modifyTime" column="modify_time" jdbcType="TIMESTAMP"/>
+            <result property="deleted" column="deleted" jdbcType="BIT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        view_id,reader_id,article_id,
+        create_time,modify_time,deleted
+    </sql>
+
+    <select id="selectViewHistoryByUserId" resultType="com.db.community.model.vo.impl.ViewHistoryInfoVO">
+        SELECT v.view_id,a.article_id,a.title,u.nick_name,v.create_time FROM
+        tb_view v INNER JOIN tb_article a
+        ON v.reader_id=#{userId} AND v.article_id=a.article_id AND v.deleted=0
+        INNER JOIN tb_user u ON v.reader_id=u.user_id
+        ORDER BY v.create_time DESC LIMIT #{offset},#{size}
+    </select>
+
+    <select id="selectUserHistoryByDate" resultType="com.db.community.model.vo.impl.ViewHistoryInfoVO">
+        SELECT v.view_id,a.article_id,a.title,u.nick_name,v.create_time FROM
+        tb_view v INNER JOIN tb_article a
+        ON v.reader_id=#{userId} AND v.article_id=a.article_id AND v.deleted=0
+        INNER JOIN tb_user u ON v.reader_id=u.user_id
+        WHERE DATE(v.create_time)=#{targetDate}
+        ORDER BY v.create_time DESC
+    </select>
+
+</mapper>
